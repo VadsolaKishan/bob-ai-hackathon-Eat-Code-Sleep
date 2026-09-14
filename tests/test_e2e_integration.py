@@ -275,3 +275,33 @@ def test_e2e_advisory_chat_route(test_client):
         assert "TX-001" in data["response"] or data.get("asset_id") == "TX-001"
 
 
+def test_e2e_grid_fallback_when_neo4j_down(test_client):
+    """GET /api/v1/grid/topology and /api/v1/grid/assets/{id}/impact must never 500 when Neo4j is offline."""
+    from contextlib import asynccontextmanager
+
+    @asynccontextmanager
+    async def broken_neo4j_session():
+        raise ConnectionRefusedError("Connection refused to bolt://localhost:7687")
+        yield
+
+    with patch("src.app.database.neo4j.get_neo4j_session", side_effect=broken_neo4j_session), \
+         patch("src.app.routes.grid.get_neo4j_session", side_effect=broken_neo4j_session):
+        
+        # Topology should fallback gracefully to in-memory graph
+        res_topo = test_client.get("/api/v1/grid/topology")
+        assert res_topo.status_code == 200
+        topo_data = res_topo.json()
+        assert "nodes" in topo_data
+        assert topo_data["total_nodes"] == 10
+        assert topo_data["total_edges"] == 9
+
+        # Impact should fallback gracefully to in-memory graph
+        res_imp = test_client.get("/api/v1/grid/assets/TX-001/impact")
+        assert res_imp.status_code == 200
+        imp_data = res_imp.json()
+        assert imp_data["failed_asset"]["asset_id"] == "TX-001"
+        assert imp_data["cascade_risk"] > 0
+        assert "CF-001" in imp_data["cascade_path"]
+
+
+

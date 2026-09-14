@@ -97,3 +97,52 @@ async def test_cascade_risk_clamped():
     analyzer = CascadeAnalyzer(mock_svc)
     result = await analyzer.analyze_cascade("SUB-001")
     assert result["cascade_risk"] <= 1.0
+
+
+@pytest.mark.asyncio
+async def test_in_memory_grid_topology():
+    """Verify InMemoryGridService returns complete canonical topology."""
+    from src.app.services.in_memory_grid import InMemoryGridService
+    svc = InMemoryGridService()
+    topo = await svc.get_topology()
+    assert topo["total_nodes"] == 10
+    assert topo["total_edges"] == 9
+    assert len(topo["nodes"]) == 10
+    assert len(topo["edges"]) == 9
+    node_ids = {n["id"] for n in topo["nodes"]}
+    assert "TX-001" in node_ids
+    assert "CF-001" in node_ids
+    assert "SUB-001" in node_ids
+
+
+@pytest.mark.asyncio
+async def test_in_memory_grid_cascade_tx001():
+    """Verify TX-001 cascade analysis through in-memory graph correctly identifies hospital."""
+    from src.app.services.in_memory_grid import InMemoryGridService
+    svc = InMemoryGridService()
+    analyzer = CascadeAnalyzer(svc)
+    res = await analyzer.analyze_cascade("TX-001")
+
+    assert res is not None
+    assert res["failed_asset"]["asset_id"] == "TX-001"
+    assert res["affected_asset_count"] == 2
+    assert res["critical_facility_count"] == 1
+    assert res["cascade_path"] == ["TX-001", "FD-001", "CF-001"]
+    assert res["cascade_risk"] == 0.68
+    assert res["dependency_depth"] == 2
+    assert "City General Hospital" in res["explanation"]
+
+
+@pytest.mark.asyncio
+async def test_in_memory_grid_cascade_leaf():
+    """Verify leaf node CF-001 has zero cascade downstream."""
+    from src.app.services.in_memory_grid import InMemoryGridService
+    svc = InMemoryGridService()
+    analyzer = CascadeAnalyzer(svc)
+    res = await analyzer.analyze_cascade("CF-001")
+
+    assert res is not None
+    assert res["affected_asset_count"] == 0
+    assert res["critical_facility_count"] == 0
+    assert res["cascade_risk"] == 0.0
+
