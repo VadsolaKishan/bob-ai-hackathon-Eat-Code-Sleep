@@ -104,7 +104,7 @@ app.include_router(recommendations_router, prefix=API_PREFIX)
 app.include_router(dashboard_router, prefix=API_PREFIX)
 
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 async def root():
     return {
         "service": "GridPulse AI — Power Grid Equipment Risk Advisor",
@@ -115,8 +115,8 @@ async def root():
     }
 
 
-@app.get("/health", include_in_schema=False)
-@app.get(f"{API_PREFIX}/health")
+@app.api_route("/health", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route(f"{API_PREFIX}/health", methods=["GET", "HEAD"])
 async def health_check():
     """Service health check with dependency status."""
     from src.app.database.postgres import get_postgres_status
