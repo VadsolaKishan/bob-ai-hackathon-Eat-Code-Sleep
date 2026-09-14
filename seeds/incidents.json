@@ -1,0 +1,51 @@
+[
+  {
+    "asset_id": "TX-001",
+    "timestamp": "2023-11-02T14:22:00Z",
+    "failure_type": "arcing",
+    "severity": "critical",
+    "description": "Acetylene spike detected at 3.8 ppm — active arcing fault in main winding. Emergency shutdown and inspection required."
+  },
+  {
+    "asset_id": "TX-001",
+    "timestamp": "2023-08-15T10:05:00Z",
+    "failure_type": "thermal",
+    "severity": "high",
+    "description": "Oil temperature exceeded 95°C during peak load under summer heat wave. Cooling fans activated."
+  },
+  {
+    "asset_id": "TX-002",
+    "timestamp": "2023-12-10T06:30:00Z",
+    "failure_type": "partial_discharge",
+    "severity": "medium",
+    "description": "Partial discharge readings elevated to 320 pC — possible insulation degradation. Enhanced monitoring initiated."
+  },
+  {
+    "asset_id": "TX-002",
+    "timestamp": "2023-09-22T18:45:00Z",
+    "failure_type": "weather",
+    "severity": "high",
+    "description": "Lightning strike within 2km caused surge. Protection relay tripped. Restored after inspection."
+  },
+  {
+    "asset_id": "TX-003",
+    "timestamp": "2024-01-03T09:15:00Z",
+    "failure_type": "mechanical",
+    "severity": "medium",
+    "description": "Elevated vibration at 2.2 mm/s — possible loose mounting hardware. Maintenance crew dispatched."
+  },
+  {
+    "asset_id": "SUB-001",
+    "timestamp": "2023-10-14T22:00:00Z",
+    "failure_type": "overload",
+    "severity": "medium",
+    "description": "Bus overload condition during grid reconfiguration. Load balanced to adjacent feeders."
+  },
+  {
+    "asset_id": "FD-001",
+    "timestamp": "2023-07-28T15:30:00Z",
+    "failure_type": "weather",
+    "severity": "critical",
+    "description": "Feeder line damage from wind gusts at 85 km/h. 12,000 customers affected. Crew deployed for emergency repair."
+  }
+]

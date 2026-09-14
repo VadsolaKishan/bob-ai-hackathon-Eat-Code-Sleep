@@ -1,0 +1,28 @@
+# GridPulse AI — Python Dependencies
+# Backend: FastAPI + PostgreSQL + Neo4j + IBM watsonx.ai
+
+# ── Web Framework ────────────────────────────────────────────────────────────
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
+python-dotenv>=1.0.0
+
+# ── PostgreSQL ───────────────────────────────────────────────────────────────
+sqlalchemy[asyncio]>=2.0.0
+asyncpg>=0.29.0
+alembic>=1.13.0
+
+# ── Neo4j ────────────────────────────────────────────────────────────────────
+neo4j>=5.18.0
+
+# ── IBM watsonx.ai ────────────────────────────────────────────────────────────
+ibm-watsonx-ai>=1.0.0
+
+# ── HTTP ─────────────────────────────────────────────────────────────────────
+requests>=2.31.0
+httpx>=0.27.0
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest>=8.0.0
+pytest-asyncio>=0.23.0

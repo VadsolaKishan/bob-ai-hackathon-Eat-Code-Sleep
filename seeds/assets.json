@@ -1,0 +1,122 @@
+[
+  {
+    "asset_id": "SUB-001",
+    "name": "North Cascade 400kV Primary Substation",
+    "asset_type": "substation",
+    "latitude": 37.8044,
+    "longitude": -122.2712,
+    "capacity": 400.0,
+    "critical_facility": false,
+    "facility_type": null,
+    "status": "active",
+    "installation_date": "2008-03-15"
+  },
+  {
+    "asset_id": "TX-001",
+    "name": "North Cascade Primary Transformer T-101",
+    "asset_type": "transformer",
+    "latitude": 37.8044,
+    "longitude": -122.2712,
+    "capacity": 250.0,
+    "critical_facility": true,
+    "facility_type": "hospital",
+    "status": "active",
+    "installation_date": "2011-06-15"
+  },
+  {
+    "asset_id": "TX-002",
+    "name": "Harbor View Distribution Transformer T-202",
+    "asset_type": "transformer",
+    "latitude": 37.7749,
+    "longitude": -122.4194,
+    "capacity": 180.0,
+    "critical_facility": true,
+    "facility_type": "water_plant",
+    "status": "active",
+    "installation_date": "2015-09-20"
+  },
+  {
+    "asset_id": "SUB-002",
+    "name": "Metro Harbor 220kV Distribution Substation",
+    "asset_type": "substation",
+    "latitude": 37.7749,
+    "longitude": -122.4194,
+    "capacity": 220.0,
+    "critical_facility": false,
+    "facility_type": null,
+    "status": "active",
+    "installation_date": "2012-11-08"
+  },
+  {
+    "asset_id": "TX-003",
+    "name": "East Valley Industrial Transformer T-303",
+    "asset_type": "transformer",
+    "latitude": 37.6879,
+    "longitude": -122.0748,
+    "capacity": 150.0,
+    "critical_facility": true,
+    "facility_type": "airport",
+    "status": "active",
+    "installation_date": "2017-04-12"
+  },
+  {
+    "asset_id": "TX-004",
+    "name": "Valley Solar Intertie Transformer T-404",
+    "asset_type": "transformer",
+    "latitude": 37.6531,
+    "longitude": -122.0731,
+    "capacity": 120.0,
+    "critical_facility": false,
+    "facility_type": null,
+    "status": "active",
+    "installation_date": "2020-07-01"
+  },
+  {
+    "asset_id": "FD-001",
+    "name": "North Feeder Line F-101",
+    "asset_type": "feeder",
+    "latitude": 37.8200,
+    "longitude": -122.2800,
+    "capacity": 50.0,
+    "critical_facility": false,
+    "facility_type": null,
+    "status": "active",
+    "installation_date": "2011-06-15"
+  },
+  {
+    "asset_id": "FD-002",
+    "name": "Harbor Distribution Feeder F-202",
+    "asset_type": "feeder",
+    "latitude": 37.7649,
+    "longitude": -122.4294,
+    "capacity": 40.0,
+    "critical_facility": false,
+    "facility_type": null,
+    "status": "active",
+    "installation_date": "2015-09-20"
+  },
+  {
+    "asset_id": "FD-003",
+    "name": "East Valley Feeder F-303",
+    "asset_type": "feeder",
+    "latitude": 37.6779,
+    "longitude": -122.0848,
+    "capacity": 35.0,
+    "critical_facility": false,
+    "facility_type": null,
+    "status": "active",
+    "installation_date": "2017-04-12"
+  },
+  {
+    "asset_id": "CF-001",
+    "name": "City General Hospital",
+    "asset_type": "critical_facility",
+    "latitude": 37.8150,
+    "longitude": -122.2600,
+    "capacity": null,
+    "critical_facility": true,
+    "facility_type": "hospital",
+    "status": "active",
+    "installation_date": "1995-01-01"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {"asset_id": "TX-001", "timestamp": "2024-01-15T08:00:00Z", "wind_speed": 68.5, "rainfall": 22.0, "lightning_probability": 0.75, "flood_risk": 0.30, "temperature": 38.2},
+  {"asset_id": "TX-001", "timestamp": "2024-01-15T10:00:00Z", "wind_speed": 72.0, "rainfall": 25.0, "lightning_probability": 0.80, "flood_risk": 0.35, "temperature": 39.1},
+  {"asset_id": "TX-002", "timestamp": "2024-01-15T08:00:00Z", "wind_speed": 52.0, "rainfall": 12.0, "lightning_probability": 0.40, "flood_risk": 0.20, "temperature": 31.0},
+  {"asset_id": "TX-002", "timestamp": "2024-01-15T10:00:00Z", "wind_speed": 55.0, "rainfall": 14.0, "lightning_probability": 0.45, "flood_risk": 0.22, "temperature": 32.0},
+  {"asset_id": "TX-003", "timestamp": "2024-01-15T08:00:00Z", "wind_speed": 38.0, "rainfall": 5.0,  "lightning_probability": 0.20, "flood_risk": 0.10, "temperature": 28.5},
+  {"asset_id": "TX-003", "timestamp": "2024-01-15T10:00:00Z", "wind_speed": 40.0, "rainfall": 6.0,  "lightning_probability": 0.22, "flood_risk": 0.11, "temperature": 29.0},
+  {"asset_id": "TX-004", "timestamp": "2024-01-15T08:00:00Z", "wind_speed": 24.0, "rainfall": 0.0,  "lightning_probability": 0.05, "flood_risk": 0.05, "temperature": 29.5},
+  {"asset_id": "TX-004", "timestamp": "2024-01-15T10:00:00Z", "wind_speed": 25.0, "rainfall": 0.0,  "lightning_probability": 0.05, "flood_risk": 0.05, "temperature": 30.0},
+  {"asset_id": "SUB-001", "timestamp": "2024-01-15T08:00:00Z", "wind_speed": 65.0, "rainfall": 20.0, "lightning_probability": 0.70, "flood_risk": 0.28, "temperature": 37.0},
+  {"asset_id": "SUB-001", "timestamp": "2024-01-15T10:00:00Z", "wind_speed": 68.0, "rainfall": 22.0, "lightning_probability": 0.72, "flood_risk": 0.30, "temperature": 37.5},
+  {"asset_id": "SUB-002", "timestamp": "2024-01-15T08:00:00Z", "wind_speed": 50.0, "rainfall": 10.0, "lightning_probability": 0.35, "flood_risk": 0.18, "temperature": 30.0},
+  {"asset_id": "SUB-002", "timestamp": "2024-01-15T10:00:00Z", "wind_speed": 53.0, "rainfall": 12.0, "lightning_probability": 0.38, "flood_risk": 0.20, "temperature": 31.0},
+  {"asset_id": "FD-001", "timestamp": "2024-01-15T08:00:00Z", "wind_speed": 66.0, "rainfall": 21.0,  "lightning_probability": 0.72, "flood_risk": 0.29, "temperature": 37.8},
+  {"asset_id": "FD-001", "timestamp": "2024-01-15T10:00:00Z", "wind_speed": 70.0, "rainfall": 24.0,  "lightning_probability": 0.78, "flood_risk": 0.33, "temperature": 38.5},
+  {"asset_id": "FD-002", "timestamp": "2024-01-15T08:00:00Z", "wind_speed": 51.0, "rainfall": 11.0,  "lightning_probability": 0.38, "flood_risk": 0.19, "temperature": 30.5},
+  {"asset_id": "FD-002", "timestamp": "2024-01-15T10:00:00Z", "wind_speed": 54.0, "rainfall": 13.0,  "lightning_probability": 0.42, "flood_risk": 0.21, "temperature": 31.5},
+  {"asset_id": "FD-003", "timestamp": "2024-01-15T08:00:00Z", "wind_speed": 37.0, "rainfall": 4.5,   "lightning_probability": 0.18, "flood_risk": 0.09, "temperature": 28.0},
+  {"asset_id": "FD-003", "timestamp": "2024-01-15T10:00:00Z", "wind_speed": 39.0, "rainfall": 5.5,   "lightning_probability": 0.20, "flood_risk": 0.10, "temperature": 28.5},
+  {"asset_id": "CF-001", "timestamp": "2024-01-15T08:00:00Z", "wind_speed": 67.0, "rainfall": 21.5,  "lightning_probability": 0.73, "flood_risk": 0.30, "temperature": 38.0},
+  {"asset_id": "CF-001", "timestamp": "2024-01-15T10:00:00Z", "wind_speed": 71.0, "rainfall": 24.5,  "lightning_probability": 0.79, "flood_risk": 0.34, "temperature": 38.8}
+]

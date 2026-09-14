@@ -1,0 +1,50 @@
+[
+  {
+    "asset_id": "TX-001",
+    "priority": "critical",
+    "status": "in_progress",
+    "assigned_crew": "Rapid Response High-Voltage Alpha (CREW-01)",
+    "scheduled_time": "2026-09-14T08:00:00Z",
+    "description": "Emergency DGA inspection and oil degassing for C2H2 arcing fault (4.5 ppm) and top-oil thermal mitigation."
+  },
+  {
+    "asset_id": "TX-002",
+    "priority": "high",
+    "status": "pending",
+    "assigned_crew": "Storm Line Repair Bravo (CREW-02)",
+    "scheduled_time": "2026-09-14T14:00:00Z",
+    "description": "Harbor View transformer surge arrestor inspection and tank vibration harmonic damper replacement."
+  },
+  {
+    "asset_id": "SUB-001",
+    "priority": "high",
+    "status": "pending",
+    "assigned_crew": "Substation Protection Delta (CREW-03)",
+    "scheduled_time": "2026-09-15T09:00:00Z",
+    "description": "North Cascade primary switchgear protective relay calibration and busbar thermographic survey."
+  },
+  {
+    "asset_id": "FD-001",
+    "priority": "medium",
+    "status": "pending",
+    "assigned_crew": "Storm Line Repair Bravo (CREW-02)",
+    "scheduled_time": "2026-09-15T16:00:00Z",
+    "description": "Vegetation clearance and insulator wash along hospital feeder corridor ahead of storm front."
+  },
+  {
+    "asset_id": "TX-004",
+    "priority": "low",
+    "status": "completed",
+    "assigned_crew": "Emergency Standby Echo (CREW-04)",
+    "scheduled_time": "2026-09-12T11:00:00Z",
+    "description": "Routine semi-annual oil dielectric breakdown voltage test and solar intertie harmonic filter inspection."
+  },
+  {
+    "asset_id": "SUB-002",
+    "priority": "medium",
+    "status": "completed",
+    "assigned_crew": "Substation Protection Delta (CREW-03)",
+    "scheduled_time": "2026-09-13T13:30:00Z",
+    "description": "Metro Harbor distribution breaker battery bank replacement and backup generator load testing."
+  }
+]
