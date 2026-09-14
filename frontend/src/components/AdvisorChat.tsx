@@ -15,7 +15,12 @@ interface Message {
   data_sources?: string[];
 }
 
-export default function AdvisorChat() {
+interface AdvisorChatProps {
+  externalPrompt?: string;
+  onPromptProcessed?: () => void;
+}
+
+export default function AdvisorChat({ externalPrompt, onPromptProcessed }: AdvisorChatProps = {}) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'ai',
@@ -31,6 +36,13 @@ export default function AdvisorChat() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (externalPrompt && externalPrompt.trim()) {
+      send(externalPrompt.trim());
+      onPromptProcessed?.();
+    }
+  }, [externalPrompt]);
 
   const send = async (textToSend?: string) => {
     const q = textToSend || input;
@@ -71,10 +83,13 @@ export default function AdvisorChat() {
   };
 
   const suggestions = [
-    'What asset should we inspect first?',
+    'Which asset needs immediate inspection?',
+    'How does current weather affect risk?',
+    'Which critical facilities are at risk?',
+    'What should the maintenance team do today?',
+    'What happens if TX-001 fails?',
     'Why is TX-001 high risk?',
     'What does the DGA indicate for TX-001?',
-    'What happens if TX-001 fails?',
     'Where should crews be positioned for the next 48 hours?',
     'Compare TX-001 and TX-004.',
     'Which assets are affected by lightning?',

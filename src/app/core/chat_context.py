@@ -142,6 +142,41 @@ class ChatContextBuilder:
             context["compound_risk_assets"] = [
                 a for a in asset_summaries if a["health_index"] < 65.0 and a["weather_risk_score"] > 0.4
             ]
+        elif intent == ChatIntent.MAINTENANCE:
+            try:
+                wos = await self.pg_svc.get_all_workorders()
+                context["work_orders"] = [
+                    (wo.model_dump() if hasattr(wo, "model_dump") else wo.dict()) for wo in wos
+                ]
+            except Exception as e:
+                logger.warning(f"Failed to fetch workorders for chat context: {e}")
+                context["work_orders"] = []
+
+        # Weather overview across grid
+        context["weather_overview"] = {
+            "high_risk_weather_assets": [a for a in asset_summaries if a["weather_risk_score"] >= 0.4],
+            "lightning_alert_assets": [a for a in asset_summaries if a["dominant_hazard"] == "lightning" or a["weather_risk_score"] > 0.4],
+        }
+
+        # Critical facilities overview
+        critical_facs = [
+            a for a in all_assets if getattr(a, "critical_facility", False)
+        ]
+        context["critical_facilities"] = [
+            {
+                "asset_id": a.asset_id,
+                "name": a.name,
+                "facility_type": getattr(a, "facility_type", "critical"),
+                "status": getattr(a, "status", "active"),
+            }
+            for a in critical_facs
+        ]
+
+        # Top asset cascade details if cascade or critical facility queried without asset ID
+        if intent in (ChatIntent.CASCADE_IMPACT, ChatIntent.CRITICAL_FACILITY) and context.get("top_asset"):
+            top_id = context["top_asset"]["asset_id"]
+            context["top_cascade"] = await self._get_cascade_details(top_id)
+            context["top_asset_profile"] = await self.get_full_asset_profile(top_id)
 
         # 48-Hour crew plan
         crew_plan = generate_crew_preposition_plan(asset_summaries)

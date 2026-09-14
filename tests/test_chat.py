@@ -400,3 +400,78 @@ async def test_unknown_asset_advisory_response():
     assert result["asset_id"] is None
     assert "TX-001" in result["response"]
 
+
+def test_intent_new_prompts():
+    """Verifies that all standard prompt suggestions route to distinct correct intents."""
+    # 1. Immediate inspection
+    assert detect_chat_intent("Which asset needs immediate inspection?", []) == ChatIntent.TOP_RISK_ASSETS
+
+    # 2. Weather risk
+    assert detect_chat_intent("How does current weather affect risk?", []) == ChatIntent.WEATHER_RISK
+
+    # 3. Critical facilities
+    assert detect_chat_intent("Which critical facilities are at risk?", []) == ChatIntent.CRITICAL_FACILITY
+
+    # 4. Maintenance team
+    assert detect_chat_intent("What should the maintenance team do today?", []) == ChatIntent.MAINTENANCE
+    assert detect_chat_intent("Give me maintenance suggestions", []) == ChatIntent.MAINTENANCE
+
+    # 5. Cascade risk
+    assert detect_chat_intent("What is the cascade risk for this asset?", []) == ChatIntent.CASCADE_IMPACT
+
+    # 6. Greeting / Help
+    assert detect_chat_intent("Hello", []) == ChatIntent.GREETING
+    assert detect_chat_intent("What can you do?", []) == ChatIntent.GREETING
+
+
+@pytest.mark.asyncio
+async def test_advisory_distinct_responses():
+    """Verifies that each query type produces distinct, authoritative control-room advice."""
+    engine = AdvisoryEngine()
+
+    mock_top = {
+        "asset_id": "TX-001",
+        "name": "North Cascade Primary Transformer T-101",
+        "final_risk_score": 1.00,
+        "risk_level": "CRITICAL",
+        "health_index": 48.5,
+    }
+
+    # 1. Greeting response
+    ctx_greet = {"intent": ChatIntent.GREETING.value}
+    res_greet, _ = await engine.chat("hello", ctx_greet)
+    assert "GridPulse AI" in res_greet["response"]
+    assert "intelligent power grid operational advisor" in res_greet["response"]
+
+    # 2. Maintenance response
+    ctx_maint = {
+        "intent": ChatIntent.MAINTENANCE.value,
+        "top_asset": mock_top,
+        "work_orders": [{"id": 1, "asset_id": "TX-001", "title": "Oil degassing", "priority": "CRITICAL", "status": "pending"}]
+    }
+    res_maint, _ = await engine.chat("What should the maintenance team do today?", ctx_maint)
+    assert "maintenance team must immediately prioritize" in res_maint["response"]
+    assert "TX-001" in res_maint["response"]
+
+    # 3. Weather grid-wide response
+    ctx_weather = {
+        "intent": ChatIntent.WEATHER_RISK.value,
+        "weather_overview": {
+            "high_risk_weather_assets": [mock_top],
+            "lightning_alert_assets": [mock_top],
+        }
+    }
+    res_weather, _ = await engine.chat("How does current weather affect risk?", ctx_weather)
+    assert "ELEVATED RISK" in res_weather["response"]
+    assert "across the grid corridor" in res_weather["response"]
+
+    # 4. Critical facilities response
+    ctx_cf = {
+        "intent": ChatIntent.CRITICAL_FACILITY.value,
+        "top_asset": mock_top,
+    }
+    res_cf, _ = await engine.chat("Which critical facilities are at risk?", ctx_cf)
+    assert "City General Hospital Complex" in res_cf["response"]
+    assert "CF-001" in res_cf["response"]
+
+

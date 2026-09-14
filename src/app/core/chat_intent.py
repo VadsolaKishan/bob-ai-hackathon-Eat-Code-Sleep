@@ -23,6 +23,7 @@ class ChatIntent(str, Enum):
     LIGHTNING_ASSETS = "LIGHTNING_ASSETS"
     DGA_WARNING_ASSETS = "DGA_WARNING_ASSETS"
     UNKNOWN_ASSET = "UNKNOWN_ASSET"
+    GREETING = "GREETING"
     GENERAL_GRID = "GENERAL_GRID"
 
 
@@ -90,6 +91,20 @@ NAME_PATTERNS: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"hospital", re.IGNORECASE), "CF-001"),
 ]
 
+# Non-asset words that must never be treated as asset IDs
+NON_ASSET_WORDS = {
+    "the", "a", "an", "this", "that", "these", "those", "grid", "all", "asset", "assets",
+    "system", "systems", "transformer", "transformers", "substation", "substations",
+    "feeder", "feeders", "first", "highest", "most", "worst", "our", "we", "crews", "crew",
+    "team", "teams", "your", "name", "today", "now", "here", "current", "risk", "risks",
+    "health", "weather", "storm", "cascade", "impact", "failure", "facilities", "facility",
+    "hospital", "maintenance", "action", "actions", "suggestion", "suggestions", "order",
+    "orders", "plan", "plans", "work", "report", "overview", "status", "condition", "details",
+    "detqails", "info", "information", "what", "which", "where", "how", "why", "who",
+    "hello", "hi", "hey", "help", "please", "urgent", "critical", "warning", "routine",
+    "check", "inspect", "inspection", "dispatch", "position", "positioned", "affect", "affected"
+}
+
 
 def resolve_asset_ids(text: str) -> List[str]:
     """
@@ -124,27 +139,37 @@ def resolve_asset_ids(text: str) -> List[str]:
     code_matches = re.findall(r"\b([a-zA-Z]{1,5}[-_]\d{1,4})\b", text, re.IGNORECASE)
     for code in code_matches:
         code_upper = code.strip().upper()
+        if code.lower() in NON_ASSET_WORDS:
+            continue
         # Resolve aliases if known
         resolved = KNOWN_ALIASES.get(code_upper) or KNOWN_ALIASES.get(code_upper.replace("-", ""))
         target = resolved or code_upper
         if target not in found:
             found.append(target)
 
-    # 5. If still no asset was matched, check phrase queries like "details of XYZ", "info on ABC"
+    # 5. Check explicitly queried asset patterns like "details of XYZ", "status of asset XYZ-99"
     if not found:
         match = re.search(
-            r"(?:details?|detqails?|info(?:rmation)?|status|condition|about|what\s+is|health|risk|maintenance)\s+(?:of\s+|for\s+|about\s+|on\s+)?(?:the\s+|a\s+|an\s+|asset\s+|transformer\s+|substation\s+|feeder\s+)*([a-zA-Z0-9_-]+)",
+            r"(?:details?|detqails?|info(?:rmation)?|status|condition)\s+of\s+(?:the\s+|a\s+|an\s+|asset\s+|transformer\s+|substation\s+|feeder\s+)*([a-zA-Z0-9_-]+)",
             text,
             re.IGNORECASE
         )
+        if not match:
+            match = re.search(
+                r"\b(?:asset|transformer|substation|feeder)\s+([a-zA-Z0-9_-]+)",
+                text,
+                re.IGNORECASE
+            )
+
         if match:
             cand = match.group(1).strip()
-            stopwords = {"the", "a", "an", "this", "that", "grid", "all", "asset", "assets", "system", "transformer", "transformers", "substation", "substations", "first", "highest", "most", "worst", "our", "we", "crews", "crew"}
-            if cand.lower() not in stopwords and len(cand) >= 2:
-                cand_upper = cand.upper()
-                resolved = KNOWN_ALIASES.get(cand_upper) or cand_upper
-                if resolved not in found:
-                    found.append(resolved)
+            if cand.lower() not in NON_ASSET_WORDS and len(cand) >= 2:
+                # Must look like an asset identifier (contains digits or hyphen/underscore)
+                if re.search(r"\d", cand) or "-" in cand or "_" in cand:
+                    cand_upper = cand.upper()
+                    resolved = KNOWN_ALIASES.get(cand_upper) or cand_upper
+                    if resolved not in found:
+                        found.append(resolved)
 
     return found
 
@@ -159,68 +184,82 @@ def detect_chat_intent(message: str, resolved_assets: List[str]) -> ChatIntent:
     if resolved_assets and any(aid not in VALID_ASSET_IDS for aid in resolved_assets):
         return ChatIntent.UNKNOWN_ASSET
 
-    # 1. Asset comparison: "Compare TX-001 and TX-004", "Why is TX-001 prioritized over TX-004?"
+    # 1. Greetings & Bot Identity / Capability Queries
+    greeting_exact = {"hello", "hi", "hey", "greetings", "good morning", "good afternoon", "good evening", "help"}
+    if msg in greeting_exact or any(
+        phrase in msg for phrase in [
+            "who are you", "what is your name", "what can you do", "how do you work",
+            "how does this work", "what are you", "introduce yourself"
+        ]
+    ):
+        return ChatIntent.GREETING
+
+    # 2. Asset comparison: "Compare TX-001 and TX-004", "Why is TX-001 prioritized over TX-004?"
     if len(resolved_assets) >= 2 or "compare" in msg or "prioritized over" in msg or "priority over" in msg:
         return ChatIntent.COMPARE_ASSETS
 
-    # 2. Compound risk: "both poor health and severe weather", "poor health and weather"
+    # 3. Compound risk: "both poor health and severe weather", "poor health and weather"
     if ("poor health" in msg or "degraded" in msg) and ("weather" in msg or "storm" in msg):
         return ChatIntent.COMPOUND_RISK
 
-    # 3. Lightning queries: "affected by lightning", "lightning risk"
+    # 4. Lightning queries: "affected by lightning", "lightning risk"
     if "lightning" in msg:
         if resolved_assets:
             return ChatIntent.WEATHER_RISK
         return ChatIntent.LIGHTNING_ASSETS
 
-    # 4. Cascading failure: "what happens if TX-001 fails", "cascading failure", "most dangerous cascade", "if TX-001 fails"
-    if any(k in msg for k in ["what happens if", "if tx-", "fails", "fail", "cascad", "downstream", "outage spread"]):
+    # 5. Cascading failure: "what happens if TX-001 fails", "cascading failure", "most dangerous cascade", "if TX-001 fails", "cascade risk for this asset"
+    if any(k in msg for k in ["what happens if", "if tx-", "fails", "fail", "cascad", "downstream", "outage spread", "n-1"]):
         return ChatIntent.CASCADE_IMPACT
 
-    # 5. DGA warning signs across assets: "which assets have dga warning", "assets with dga"
+    # 6. DGA warning signs across assets: "which assets have dga warning", "assets with dga"
     if ("which" in msg or "assets" in msg or "transformers" in msg) and ("dga" in msg or "gas" in msg or "arcing" in msg or "acetylene" in msg):
         if not resolved_assets:
             return ChatIntent.DGA_WARNING_ASSETS
 
-    # 6. DGA Analysis for specific asset: "What does DGA indicate for TX-001?", "DGA of TX-001"
+    # 7. DGA Analysis for specific asset: "What does DGA indicate for TX-001?", "DGA of TX-001"
     if any(k in msg for k in ["dga", "dissolved gas", "acetylene", "ethylene", "hydrogen", "arcing", "methane"]):
         return ChatIntent.DGA_ANALYSIS
 
-    # 7. Asset Health Index: "health index of TX-001", "condition of TX-001", "health score"
+    # 8. Asset Health Index: "health index of TX-001", "condition of TX-001", "health score"
     if any(k in msg for k in ["health index", "health score", "ahi", "health band", "condition of"]):
         return ChatIntent.ASSET_HEALTH
 
-    # 8. Weather risk: "vulnerable to the storm", "weather affecting", "storm vulnerability"
-    if any(k in msg for k in ["weather", "storm", "wind", "hurricane", "flood", "rain", "vulnerable to the storm"]):
-        return ChatIntent.WEATHER_RISK
-
     # 9. Critical facility queries: "critical facilities affected", "facilities affected", "hospital", "water plant"
-    if any(k in msg for k in ["critical facilit", "hospital", "water plant", "airport", "facilities affected"]):
+    if any(k in msg for k in ["critical facilit", "hospital", "water plant", "airport", "facilities at risk", "facilities affected", "facility risk"]):
         return ChatIntent.CRITICAL_FACILITY
 
     # 10. Crew dispatch & pre-positioning: "where should crews be positioned", "which crew", "crew pre-position"
     if any(k in msg for k in ["crew", "dispatch", "pre-position", "staging", "48 hour", "where should crews"]):
         return ChatIntent.CREW_DISPATCH
 
-    # 11. Maintenance: "what maintenance should be performed", "work order", "actions for"
-    if any(k in msg for k in ["maintenance", "work order", "repair", "inspection required", "what action"]):
+    # 11. Maintenance: "what should the maintenance team do today", "work order", "maintenance suggestions"
+    if any(k in msg for k in ["maintenance", "work order", "workorder", "repair", "maintenance team", "maintenance suggestion", "maintenance action", "maintenance task", "schedule maintenance"]):
         return ChatIntent.MAINTENANCE
 
-    # 12. Top risk / inspect first: "what asset should we inspect first", "highest risk", "most critical asset"
-    if any(k in msg for k in ["inspect first", "highest risk", "worst", "top risk", "most critical", "priority asset"]):
+    # 12. Top risk / inspect first / immediate inspection: "what asset should we inspect first", "highest risk", "which asset needs immediate inspection"
+    if any(k in msg for k in [
+        "inspect first", "highest risk", "worst", "top risk", "most critical",
+        "priority asset", "immediate inspection", "needs immediate", "inspect immediately",
+        "which asset needs", "which asset should we inspect", "what to inspect"
+    ]):
         return ChatIntent.TOP_RISK_ASSETS
 
-    # 13. Risk analysis for specific asset: "Why is TX-001 high risk?", "risk of TX-001"
+    # 13. Weather risk: "how does current weather affect risk", "storm vulnerability", "weather affecting"
+    if any(k in msg for k in ["weather", "storm", "wind", "hurricane", "flood", "rain", "vulnerable to the storm"]):
+        return ChatIntent.WEATHER_RISK
+
+    # 14. Risk analysis for specific asset: "Why is TX-001 high risk?", "risk of TX-001"
     if "why" in msg or "risk" in msg:
         if resolved_assets:
             return ChatIntent.RISK_ANALYSIS
 
-    # 14. Asset lookup if asset mentioned
+    # 15. Asset lookup if asset mentioned
     if resolved_assets:
         return ChatIntent.ASSET_LOOKUP
 
-    # 15. General summary
-    if any(k in msg for k in ["summary", "overview", "status", "grid status", "control-room", "control room"]):
+    # 16. General summary / grid status
+    if any(k in msg for k in ["summary", "overview", "status", "grid status", "control-room", "control room", "how does the grid look", "grid health"]):
         return ChatIntent.GENERAL_GRID
 
     return ChatIntent.GENERAL_GRID
